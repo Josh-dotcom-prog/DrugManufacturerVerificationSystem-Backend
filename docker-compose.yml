@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  # PostgreSQL Database
+  postgres-service:
+    image: postgres:17
+    container_name: dmvs_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    networks:
+      - dmvs
+    volumes:
+      - dmvs_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Backend - FastAPI
+  fastapi-service:
+    container_name: dmvs_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: fastapi
+    restart: unless-stopped
+    depends_on:
+      postgres-service:
+        condition: service_healthy
+    ports:
+      - "8050:8050"
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres-service:5432/${DB_NAME}
+    networks:
+      - unihostel
+    volumes:
+      - ".:/usr/src/app"
+    # Make sure the application has access to the files
+    user: "1000:1000"
+
+
+  # Adminer (Database UI)
+  adminer-service:
+    image: adminer:latest
+    container_name: adminer
+    restart: unless-stopped
+    depends_on:
+      - postgres-service
+    networks:
+      - dmvs
+    ports:
+      - "8080:8080"
+
+  # SMTP Service (Email Server)
+  smtp-service:
+    image: axllent/mailpit:v1.23
+    container_name: smtp
+    restart: unless-stopped
+    networks:
+      - dmvs
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+
+networks:
+  dmvs:
+    driver: bridge
+
+volumes:
+  dmvs_db:
+
