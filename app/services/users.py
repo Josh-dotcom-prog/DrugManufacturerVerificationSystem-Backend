@@ -4,19 +4,17 @@ from fastapi import HTTPException, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session, joinedload
 from starlette.responses import JSONResponse
 
-from backend.app.core.security import Security
-from backend.app.models.users import User, UserToken
-from backend.app.core.config import get_settings
-from backend.app.repository.users import UserRepository
-from backend.app.responses.users import UserResponse, AllUserResponse
-from backend.app.responses.students import StudentBase
-from backend.app.responses.custodian import HostelOwnerBase
-from backend.app.schemas.users import *
-from backend.app.services.email_service import UserAuthEmailService
-from backend.app.services.password_reset import PasswordResetService
-from backend.app.repository.password_reset import PasswordResetRepository
-from backend.app.utils.email_context import USER_VERIFY_ACCOUNT
-from backend.app.database.database import get_session
+from app.core.security import Security
+from app.models.users import User, UserToken
+from app.core.config import get_settings
+from app.repository.users import UserRepository
+from app.responses.users import UserResponse, AllUserResponse
+from app.schemas.users import *
+# from app.services.email_service import UserAuthEmailService
+# from app.services.password_reset import PasswordResetService
+# from app.repository.password_reset import PasswordResetRepository
+from app.utils.email_context import USER_VERIFY_ACCOUNT
+from app.database.database import get_session
 
 settings = get_settings()
 security = Security()
