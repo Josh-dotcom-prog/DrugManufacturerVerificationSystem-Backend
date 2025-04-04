@@ -38,7 +38,7 @@ class UserService:
         user = User(
             name=data.name,
             email=data.email,
-            role=data.role,
+            role=data.role.value,
             mobile=data.mobile,
             password=security.hash_password(data.password),
             is_active=False,
@@ -65,6 +65,7 @@ class UserService:
         user.verified_at = datetime.now()
         user.updated_at = datetime.now()
         self.user_repository.update_user(user)
+        print("Sending email now...")
         await UserAuthEmailService.send_account_activation_confirmation_email(user, background_task=background_tasks)
 
     @staticmethod
