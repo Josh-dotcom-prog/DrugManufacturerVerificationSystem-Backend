@@ -29,7 +29,7 @@ services:
     image: fastapi
     restart: unless-stopped
     depends_on:
-      postgres-service:
+      db-service:
         condition: service_healthy
     ports:
       - "8000:8000"
@@ -46,7 +46,7 @@ services:
     container_name: adminer-browser
     restart: unless-stopped
     depends_on:
-      - postgres-service
+      - db-service
     networks:
       - dmvs
     ports:
