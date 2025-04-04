@@ -2,8 +2,8 @@ from pydantic import BaseModel,constr, conint
 import enum
 
 class UserRole(enum.Enum):
-    MANUFACTURER = "manufacturer"
-    ADMIN = "admin"
+    MANUFACTURER = "MANUFACTURER"
+    ADMIN = "ADMIN"
 
 class UserCreateSchema(BaseModel):
     name: str

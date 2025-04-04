@@ -10,9 +10,9 @@ from app.core.config import get_settings
 from app.repository.users import UserRepository
 from app.responses.users import UserResponse, AllUserResponse
 from app.schemas.users import *
-# from app.services.email_service import UserAuthEmailService
-# from app.services.password_reset import PasswordResetService
-# from app.repository.password_reset import PasswordResetRepository
+from app.services.email_service import UserAuthEmailService
+from app.services.password_reset import PasswordResetService
+from app.repository.password_reset import PasswordResetRepository
 from app.utils.email_context import USER_VERIFY_ACCOUNT
 from app.database.database import get_session
 
@@ -139,13 +139,6 @@ class UserService:
             is_active=user.is_active,
             verified_at=user.verified_at,
             updated_at=user.updated_at,
-            student=StudentBase(
-                student_number=user.student.student_number,
-                university_name=user.student.university_name
-            ) if user.student else None,
-            hostel_owner=[HostelOwnerBase(
-                business_name=user.hostel_owner.business_name,
-            ) ]if user.hostel_owner else None,
         )
         if user:
             return user
@@ -165,13 +158,5 @@ class UserService:
                 is_active=user.is_active,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
-                student=StudentBase(
-                    student_number=user.student.student_number,
-                    university_name=user.student.university_name
-                ) if user.student else None,
-                hostel_owner=[
-                    HostelOwnerBase(business_name=owner.business_name)
-                    for owner in user.hostel_owner
-                ] if user.hostel_owner else []
             ) for user in users
         ]
