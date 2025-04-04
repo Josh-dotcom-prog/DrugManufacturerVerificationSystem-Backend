@@ -37,6 +37,8 @@ class UserAuthEmailService:
 
         subject = f"Account Verification - {settings.APP_NAME}"
 
+        print("Reached Here ...2")
+
         await send_email(
             recipients=[user.email],
             subject=subject,
