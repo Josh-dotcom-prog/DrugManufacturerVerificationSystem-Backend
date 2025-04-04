@@ -7,6 +7,10 @@ from alembic import context
 
 from app.database.database import Base
 from app.models.users import *
+from app.models.manufacturer import *
+from app.models.batches import *
+from app.models.verificationHistory import *
+from app.models.drugs import *
 from app.core.config import get_settings
 
 settings = get_settings()
