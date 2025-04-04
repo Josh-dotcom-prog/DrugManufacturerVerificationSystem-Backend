@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class DrugBase(BaseModel):
+class DrugCreate(BaseModel):
     serial_number: str
     batch_id: int
     name: str
@@ -10,8 +10,6 @@ class DrugBase(BaseModel):
     qr_code: str
     is_verified: Optional[bool] = False
 
-class DrugCreate(DrugBase):
-    pass
 
 class DrugUpdate(BaseModel):
     name: Optional[str] = None

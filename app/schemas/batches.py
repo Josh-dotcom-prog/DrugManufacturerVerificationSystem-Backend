@@ -1,17 +1,21 @@
 from pydantic import BaseModel
 from datetime import date
 from typing import Optional
+import enum
 
 
-class BatchBase(BaseModel):
+class BatchStatus(enum.Enum):
+    active = "active"
+    recalled = "recalled"
+    expired = "expired"
+
+class BatchCreate(BaseModel):
     batch_number: str
     manufacturer_id: int
     manufacturing_date: date
     expiry_date: date
-    status: str  # Could be 'active', 'recalled', 'expired'
+    status: BatchStatus  # Could be 'active', 'recalled', 'expired'
 
-class BatchCreate(BatchBase):
-    pass
 
 class BatchUpdate(BaseModel):
     manufacturing_date: Optional[date] = None
