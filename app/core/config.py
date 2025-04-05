@@ -82,11 +82,13 @@ class Settings(BaseSettings):
 
         return values
 
-    def __init__(self, **values):
-        super().__init__(**values)
-        print("\nLoaded settings:")
-        for key, value in self.model_dump().items():
-            print(f"{key}: {value} ({type(value).__name__})")
+    # Un-Comment to see loaded settings print outs
+
+    # def __init__(self, **values):
+    #     super().__init__(**values)
+    #     print("\nLoaded settings:")
+    #     for key, value in self.model_dump().items():
+    #         print(f"{key}: {value} ({type(value).__name__})")
 
 
 @lru_cache()
@@ -96,4 +98,4 @@ def get_settings() -> Settings:
 
 if __name__ == "__main__":
     settings = get_settings()
-    print("\nFinal DATABASE_URI:", settings.DATABASE_URI)
+    #print("\nFinal DATABASE_URI:", settings.DATABASE_URI)
