@@ -37,6 +37,6 @@ class ManufacturerRepository:
         return self.session.query(Manufacturer).filter(Manufacturer.id == manufacturer_id).first()
 
     #lists all manufacturers
-    def get_all_manufacturers(self, email: str):
-        return self.session.query(Manufacturer).all(Manufacturer.email == email).all()
+    def get_all_manufacturers(self):
+        return self.session.query(Manufacturer).all()
 

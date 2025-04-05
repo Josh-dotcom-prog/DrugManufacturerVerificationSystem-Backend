@@ -37,6 +37,6 @@ class BatchesRepository:
         return self.session.query(Drug).filter(Drug.id == drug_id).first()
 
     #lists all drugs
-    def get_all_drugs(self, drug_id: int):
-        return self.session.query(Drug).all(Drug.id == drug_id).all()
+    def get_all_drugs(self):
+        return self.session.query(Drug).all()
 

@@ -37,6 +37,6 @@ class BatchesRepository:
         return self.session.query(Batch).filter(Batch.id == batch_id).first()
 
     #lists all batches
-    def get_all_batches(self, batch_id: int):
-        return self.session.query(Batch).all(Batch.id == batch_id).all()
+    def get_all_batches(self):
+        return self.session.query(Batch).all()
 

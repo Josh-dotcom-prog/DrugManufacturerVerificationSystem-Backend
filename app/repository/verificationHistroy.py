@@ -37,6 +37,6 @@ class BatchesRepository:
         return self.session.query(Verification).filter(Verification.id == drug_id).first()
 
     #lists all verification history
-    def get_all_verification_history(self, drug_id: int):
-        return self.session.query(Verification).all(Verification.id == drug_id).all()
+    def get_all_verification_history(self):
+        return self.session.query(Verification).all()
 
