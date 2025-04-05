@@ -28,7 +28,7 @@ def get_manufacturer_service(session: Session = Depends(get_session)) -> Manufac
     manufacturer_repository = ManufacturerRepository(session)
     return ManufacturerService(manufacturer_repository)
 
-@manufacturer_router.post("/create", status_code=status.HTTP_201_CREATED)
+@manufacturer_router.post("/create", status_code=status.HTTP_201_CREATED, response_model=ManufacturerResponse)
 async def create_manufacturer(data: ManufacturerCreate, current_user = Depends(security.get_current_user),
                               manufacturer_service: ManufacturerService = Depends(get_manufacturer_service)):
     return await manufacturer_service.create_manufacturer(current_user, data)
