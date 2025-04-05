@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routes.users import user_router, auth_router, guest_router, admin_router
+from app.routes.manufacturer import manufacturer_router
 
 def create_application():
     application = FastAPI()
@@ -8,6 +9,9 @@ def create_application():
     application.include_router(guest_router)
     application.include_router(auth_router)
     application.include_router(admin_router)
+
+    # Manufacturer
+    application.include_router(manufacturer_router)
 
     return application
 
