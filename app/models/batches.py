@@ -22,5 +22,5 @@ class Batch(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
-    manufacturer = relationship('Manufacturer', back_populates='batches')
-    drugs = relationship('Drug', back_populates='batch')
+    #manufacturer = relationship('Manufacturer', back_populates='batches')
+    #drugs = relationship('Drug', back_populates='batch')

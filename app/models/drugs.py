@@ -19,5 +19,5 @@ class Drug(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
-    batch = relationship('Batch', back_populates='drugs')
-    verifications = relationship('Verification', back_populates='drug')
+    # batch = relationship('Batch', back_populates='drugs')
+    # verifications = relationship('Verification', back_populates='drug')
