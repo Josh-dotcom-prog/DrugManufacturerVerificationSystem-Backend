@@ -40,3 +40,7 @@ class ManufacturerRepository:
     def get_all_manufacturers(self):
         return self.session.query(Manufacturer).all()
 
+    # get manufacturer by license_number
+    def get_manufacturer_by_license_number(self, license_number: str) -> Manufacturer:
+        return self.session.query(Manufacturer).filter(Manufacturer.license_number == license_number).first()
+
