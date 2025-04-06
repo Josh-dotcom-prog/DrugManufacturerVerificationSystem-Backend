@@ -13,6 +13,8 @@ from app.repository.manufacturer import ManufacturerRepository
 
 from datetime import datetime
 
+from typing import List
+
 
 class DrugService:
     def __init__(self, drug_repository: DrugRepository, batch_repository: BatchesRepository,
@@ -109,6 +111,19 @@ class DrugService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="Can not update drug to batch you didn't create")
 
+        # Get all drug ids created by this manufacturer
+        drugs = self.drug_repository.get_all_drugs_by_one_manufacturer(manufacturer.id)
+        if not drugs:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Manufacturer does not have any drugs")
+
+        drugs_id = {drug.id for drug in drugs}
+
+        # check if drug was created by this manufacturer
+        if drug_to_update.id not in drugs_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="You are not allowed to update a drug that doesn't belong to you")
+
         # validate update data
         if data.name is not None:
             drug_to_update.name = data.name
@@ -158,13 +173,52 @@ class DrugService:
                                 detail="Manufacturer with this user id does not exists")
 
         # Get all drug ids created by this manufacturer
-        drugs_id = {}
+        drugs = self.drug_repository.get_all_drugs_by_one_manufacturer(manufacturer.id)
+        if not drugs:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Manufacturer does not have any drugs")
+
+        drugs_id = { drug.id for drug in drugs }
 
         # check if drug was created by this manufacturer
-
+        if drug_to_delete.id not in drugs_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="You are not allowed to delete a drug that doesn't belong to you")
         # delete the drug
         self.drug_repository.delete_drug(drug_to_delete)
 
         return JSONResponse("Drug with this id deleted successfully.")
 
+    async def get_all_my_drugs(self, current_user: User) -> List[DrugResponse]:
 
+        # check if user is verified
+        if not current_user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+        # check user role
+        if not current_user.role.value == UserRole.MANUFACTURER.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="User is not a manufacture to access this route.")
+
+        # get manufacturer with this user id
+        manufacturer = self.manufacturer_repository.get_manufacturer_by_user_id(current_user.id)
+        if not manufacturer:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Manufacturer with this user id does not exists")
+
+        # Get all drug ids created by this manufacturer
+        drugs = self.drug_repository.get_all_drugs_by_one_manufacturer(manufacturer.id)
+        if not drugs:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Manufacturer does not have any drugs")
+        return [DrugResponse(
+            id=drug.id,
+            serial_number=drug.serial_number,
+            batch_id=drug.batch_id,
+            name=drug.name,
+            dosage=drug.dosage,
+            description=drug.description,
+            qr_code=drug.qr_code,
+            created_at=drug.created_at,
+            updated_at=drug.updated_at
+        ) for drug in drugs]
