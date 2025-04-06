@@ -33,7 +33,7 @@ class DrugRepository:
 
 
     #gets batches by id
-    def get_batch_by_drug_id(self, drug_id: int) -> Drug:
+    def get_drug_by_drug_id(self, drug_id: int) -> Drug:
         return self.session.query(Drug).filter(Drug.id == drug_id).first()
 
     def get_drug_by_name(self, drug_name: str) -> Drug:
