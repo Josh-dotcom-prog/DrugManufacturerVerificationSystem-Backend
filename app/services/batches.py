@@ -14,7 +14,7 @@ from app.repository.manufacturer import ManufacturerRepository
 from typing import List
 
 class BatchService:
-    def __int__(self, batch_repository: BatchesRepository, manufacturer_repository: ManufacturerRepository):
+    def __init__(self, batch_repository: BatchesRepository, manufacturer_repository: ManufacturerRepository):
         self.batch_repository = batch_repository
         self.manufacturer_repository = manufacturer_repository
 
@@ -38,8 +38,8 @@ class BatchService:
         batch_to_create = Batch(
             batch_number=data.batch_number,
             manufacturer_id=data.manufacturer_id,
-            maufacturing_date=data.manufacturing_date,
-            batch_status=data.status.active.value,
+            manufacturing_date=data.manufacturing_date,
+            status=data.status.active,
             expiry_date=data.expiry_date,
 
             created_at=datetime.now(),
@@ -142,7 +142,7 @@ class BatchService:
         # check if user is a manufacturer
         if not current_user.role.value == UserRole.MANUFACTURER.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                                detail="User is not a manufacture to access this route.")
+                                detail="User is not a manufacture to access this route .")
 
         # Revive the batch if it exists
         batch = self.batch_repository.get_batch_by_batch_id(batch_id)
@@ -151,9 +151,10 @@ class BatchService:
 
         # get manufacturer by this user_id
         manufacture = self.manufacturer_repository.get_manufacturer_by_user_id(current_user.id)
+        print(manufacture)
         if not manufacture:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                                detail="User is not a manufacture to access this route")
+                                detail="User is not a manufacture to access this route 2")
 
         # check if batch was created by the user
         if manufacture.id != batch.manufacturer_id:
@@ -179,7 +180,7 @@ class BatchService:
                                 detail="User is not active therefore can not be a manufacturer.")
 
         # check if user is a manufacturer
-        if not current_user.role.value == UserRole.ADMIN.value:
+        if not current_user.role.value == UserRole.MANUFACTURER.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not an admin to access this route.")
 
@@ -195,7 +196,7 @@ class BatchService:
             batch_number=batch.batch_number,
             manufacturer_id=batch.manufacturer_id,
             manufacturing_date=batch.manufacturing_date,
-            status=batch.status,
+            status=batch.status.value,
             expiry_date=batch.expiry_date,
             created_at=batch.created_at,
             updated_at=batch.updated_at
