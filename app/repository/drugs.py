@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.drugs import Drug
 
-class BatchesRepository:
+class DrugRepository:
     def __init__(self, session: Session):
         self.session = session
 
@@ -33,8 +33,11 @@ class BatchesRepository:
 
 
     #gets batches by id
-    def get_batch_by_drug_id(self, drug_id: int) -> Drug:
+    def get_drug_by_drug_id(self, drug_id: int) -> Drug:
         return self.session.query(Drug).filter(Drug.id == drug_id).first()
+
+    def get_drug_by_name(self, drug_name: str) -> Drug:
+        return self.session.query(Drug).filter(Drug.name == drug_name).first()
 
     #lists all drugs
     def get_all_drugs(self):

@@ -11,7 +11,7 @@ class BatchStatus(enum.Enum):
     expired = "expired"
 
 class BatchBase(BaseModel):
-    batch_id: str
+    batch_number: str
     manufacturer_id: int
     manufacturing_date: date
     expiry_date: date

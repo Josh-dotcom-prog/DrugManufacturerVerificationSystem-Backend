@@ -27,7 +27,7 @@ class BatchesRepository:
             raise
 
     #deleting batches
-    def delete_manufacturer(self, batches: Batch):
+    def delete_batch(self, batches: Batch):
         self.session.delete(batches)
         self.session.commit()
 
@@ -39,4 +39,7 @@ class BatchesRepository:
     #lists all batches
     def get_all_batches(self):
         return self.session.query(Batch).all()
+
+    def get_batch_by_batch_number(self, batch_number: str) -> Batch:
+        return self.session.query(Batch).filter(Batch.batch_number == batch_number).first()
 
