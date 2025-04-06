@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.routes.users import user_router, auth_router, guest_router, admin_router
 from app.routes.manufacturer import manufacturer_router, manufacturer_admin_router
 from app.routes.batches import batch_router
+from app.routes.drugs import drug_router
 
 def create_application():
     application = FastAPI()
@@ -17,6 +18,9 @@ def create_application():
 
     # Batches
     application.include_router(batch_router)
+
+    # Drugs
+    application.include_router(drug_router)
 
     return application
 
