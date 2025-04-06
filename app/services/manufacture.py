@@ -7,8 +7,11 @@ from app.schemas.manufacturer import *
 from app.responses.manufacturer import *
 
 from app.models.users import User
+from app.models.users import UserRole
 
 from datetime import datetime
+
+from typing import List
 
 
 class ManufacturerService:
@@ -108,3 +111,71 @@ class ManufacturerService:
             updated_at=manufacturer_to_update.updated_at
         )
 
+    async def delete_manufacturer(self, current_user: User):
+
+        # check if user is verified
+        if not current_user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is not active therefore can not be a manufacturer." )
+
+         # check if manufacturer  exists
+        manufacturer_to_delete = self.manufacturer_repository.get_manufacturer_by_user_id(current_user.id)
+        if not manufacturer_to_delete:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer with this id does not  exists.")
+
+        # proceed to delete manufacturer
+        self.manufacturer_repository.delete_manufacturer(manufacturer_to_delete)
+
+        return JSONResponse("Manufacturer deleted successfully.")
+
+
+    async def get_manufacturer_by_id(self, current_user: User, manufacturer_id: int) -> ManufacturerResponse:
+
+        # check if user is verified
+        if not current_user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is not active therefore can not be a manufacturer." )
+
+         # check if manufacturer  exists
+        manufacturer = self.manufacturer_repository.get_manufacturer_by_manufacturer_id(manufacturer_id)
+        if not manufacturer:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer with this id does not  exists.")
+
+        return ManufacturerResponse(
+            id=manufacturer.id,
+            name=manufacturer.name,
+            license_number=manufacturer.license_number,
+            address=manufacturer.address,
+            contact_email=manufacturer.contact_email,
+            contact_phone=manufacturer.contact_phone,
+            license_file=manufacturer.license_file,
+            certificate_file=manufacturer.certificate_file,
+
+            created_at=manufacturer.created_at,
+            updated_at=manufacturer.updated_at
+        )
+
+    async def get_all_manufacturers(self, current_user: User) -> List[ManufacturerResponse]:
+
+        # check if user is verified
+        if not current_user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+
+        if not current_user.role.value == UserRole.ADMIN.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not an admin to access this route.")
+
+        # check if manufacturer  exists
+        manufacturers = self.manufacturer_repository.get_all_manufacturers()
+
+        return [ManufacturerResponse(
+            id=manufacturer.id,
+            name=manufacturer.name,
+            license_number=manufacturer.license_number,
+            address=manufacturer.address,
+            contact_email=manufacturer.contact_email,
+            contact_phone=manufacturer.contact_phone,
+            license_file=manufacturer.license_file,
+            certificate_file=manufacturer.certificate_file,
+
+            created_at=manufacturer.created_at,
+            updated_at=manufacturer.updated_at
+        ) for manufacturer in manufacturers]
