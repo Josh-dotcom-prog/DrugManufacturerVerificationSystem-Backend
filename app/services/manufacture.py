@@ -18,6 +18,7 @@ class ManufacturerService:
     def __init__(self, manufacturer_repository: ManufacturerRepository):
         self.manufacturer_repository = manufacturer_repository
 
+    # working +
     async def create_manufacturer(self, current_user:User, data: ManufacturerCreate) -> ManufacturerResponse:
 
         # check if user is verified
@@ -51,6 +52,7 @@ class ManufacturerService:
         self.manufacturer_repository.create_manufacturer(manufacture)
 
         # build a manufacture response model
+        print(manufacture.id)
 
         manufacture_response = ManufacturerResponse(
             id=manufacture.id,
@@ -61,6 +63,7 @@ class ManufacturerService:
             contact_phone=manufacture.contact_phone,
             license_file=manufacture.license_file,
             certificate_file=manufacture.certificate_file,
+            user_id=manufacture.user_id,
 
             created_at=manufacture.created_at,
             updated_at=manufacture.updated_at
@@ -68,6 +71,7 @@ class ManufacturerService:
 
         return manufacture_response
 
+    # working +
     async def update_manufacturer(self, current_user: User, data: ManufacturerUpdate) -> ManufacturerResponse:
         # check if user is verified
         if not current_user.is_active:
@@ -106,11 +110,13 @@ class ManufacturerService:
             contact_phone=manufacturer_to_update.contact_phone,
             license_file=manufacturer_to_update.license_file,
             certificate_file=manufacturer_to_update.certificate_file,
+            user_id=manufacturer_to_update.user_id,
 
             created_at=manufacturer_to_update.created_at,
             updated_at=manufacturer_to_update.updated_at
         )
 
+    # working +
     async def delete_manufacturer(self, current_user: User):
 
         # check if user is verified
@@ -127,7 +133,7 @@ class ManufacturerService:
 
         return JSONResponse("Manufacturer deleted successfully.")
 
-
+    # working +
     async def get_manufacturer_by_id(self, current_user: User, manufacturer_id: int) -> ManufacturerResponse:
 
         # check if user is verified
@@ -148,11 +154,13 @@ class ManufacturerService:
             contact_phone=manufacturer.contact_phone,
             license_file=manufacturer.license_file,
             certificate_file=manufacturer.certificate_file,
+            user_id=manufacturer.user_id,
 
             created_at=manufacturer.created_at,
             updated_at=manufacturer.updated_at
         )
 
+    # Working +
     async def get_all_manufacturers(self, current_user: User) -> List[ManufacturerResponse]:
 
         # check if user is verified
@@ -175,6 +183,7 @@ class ManufacturerService:
             contact_phone=manufacturer.contact_phone,
             license_file=manufacturer.license_file,
             certificate_file=manufacturer.certificate_file,
+            user_id=manufacturer.user_id,
 
             created_at=manufacturer.created_at,
             updated_at=manufacturer.updated_at
