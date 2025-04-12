@@ -12,6 +12,8 @@ from app.database.database import get_session
 
 from sqlalchemy.orm import Session
 
+from typing import List
+
 security = Security()
 
 
@@ -54,7 +56,7 @@ async def get_manufacturer(manufacturer_id: int, current_user = Depends(security
                            manufacturer_service: ManufacturerService = Depends(get_manufacturer_service)):
     return await manufacturer_service.get_manufacturer_by_id(current_user, manufacturer_id)
 
-@manufacturer_admin_router.get("/manufactures", status_code=status.HTTP_200_OK)
+@manufacturer_admin_router.get("/manufactures", status_code=status.HTTP_200_OK, response_model=List[ManufacturerResponse])
 async def get_all_manufacturers(current_user = Depends(security.get_current_user),
                                 manufacturer_service : ManufacturerService = Depends(get_manufacturer_service)):
     return await manufacturer_service.get_all_manufacturers(current_user)

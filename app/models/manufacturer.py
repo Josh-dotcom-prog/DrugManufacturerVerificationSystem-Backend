@@ -20,4 +20,5 @@ class Manufacturer(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
-    # batches = relationship('Batch', back_populates='manufacturer')
+
+    batches = relationship("Batch", back_populates="manufacturer")

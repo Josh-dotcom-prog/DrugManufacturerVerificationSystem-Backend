@@ -12,6 +12,7 @@ class DrugCreate(BaseModel):
 
 
 class DrugUpdate(BaseModel):
+    batch_id: int
     name: Optional[str] = None
     dosage: Optional[str] = None
     description: Optional[str] = None
