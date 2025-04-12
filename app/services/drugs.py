@@ -23,6 +23,7 @@ class DrugService:
         self.batch_repository = batch_repository
         self.manufacturer_repository = manufacturer_repository
 
+    # working +
     async  def create_drug(self, data: DrugCreate, current_user: User) -> DrugResponse:
 
         # check if user is verified
@@ -62,7 +63,7 @@ class DrugService:
             qr_code=data.qr_code,
 
             created_at=datetime.now(),
-            update_at=datetime.now()
+            updated_at=datetime.now()
         )
 
         self.drug_repository.create_drug(drug_to_create)
@@ -75,11 +76,13 @@ class DrugService:
             name=drug_to_create.name,
             dosage=drug_to_create.dosage,
             description=drug_to_create.description,
+            is_verified=drug_to_create.is_verified,
             qr_code=drug_to_create.qr_code,
             created_at=drug_to_create.created_at,
             updated_at=drug_to_create.updated_at
         )
 
+    # working +
     async def update_drug(self, data: DrugUpdate, current_user: User) -> DrugResponse:
 
         # check if user is verified
@@ -132,6 +135,7 @@ class DrugService:
         if data.description is not None:
             drug_to_update.description = data.description
         if data.is_verified is not None:
+            print(data.is_verified)
             drug_to_update.is_verified = data.is_verified
 
         # proceed to update the drug
@@ -145,11 +149,13 @@ class DrugService:
             name=drug_to_update.name,
             dosage=drug_to_update.dosage,
             description=drug_to_update.description,
+            is_verified=drug_to_update.is_verified,
             qr_code=drug_to_update.qr_code,
             created_at=drug_to_update.created_at,
             updated_at=drug_to_update.updated_at
         )
 
+    # working +
     async def delete_drug(self, drug_id: int, current_user: User):
         # check if user is verified
         if not current_user.is_active:
@@ -189,6 +195,7 @@ class DrugService:
 
         return JSONResponse("Drug with this id deleted successfully.")
 
+    # working +
     async def get_all_my_drugs(self, current_user: User) -> List[DrugResponse]:
 
         # check if user is verified
