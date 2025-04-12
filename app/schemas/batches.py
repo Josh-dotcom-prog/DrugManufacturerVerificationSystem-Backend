@@ -4,7 +4,7 @@ from typing import Optional
 import enum
 
 
-class BatchStatus(enum.Enum):
+class BatchStatus(str, enum.Enum):
     active = "active"
     recalled = "recalled"
     expired = "expired"
@@ -18,6 +18,7 @@ class BatchCreate(BaseModel):
 
 
 class BatchUpdate(BaseModel):
+    batch_number: str
     manufacturing_date: Optional[date] = None
     expiry_date: Optional[date] = None
     status: Optional[BatchStatus]
