@@ -6,15 +6,14 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.database.database import Base
-from app.models.users import *
-from app.models.manufacturer import *
 from app.models.batches import *
 from app.models.verificationHistory import *
 from app.models.drugs import *
+from app.models.manufacturer import *
+from app.models.users import *
 from app.core.config import get_settings
 
 settings = get_settings()
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

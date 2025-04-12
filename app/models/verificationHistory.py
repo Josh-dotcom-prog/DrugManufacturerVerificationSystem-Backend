@@ -17,4 +17,4 @@ class Verification(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
-    # drug = relationship('Drug', back_populates='verifications')
+    drug = relationship("Drug", back_populates="verifications")

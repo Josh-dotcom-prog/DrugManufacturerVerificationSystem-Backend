@@ -18,6 +18,7 @@ class BatchService:
         self.batch_repository = batch_repository
         self.manufacturer_repository = manufacturer_repository
 
+    # Working
     async def create_batch(self, data: BatchCreate, current_user: User) -> BatchResponse:
         # check if user is verified
         if not current_user.is_active:
@@ -27,6 +28,11 @@ class BatchService:
         # check if user is a manufacturer
         if not current_user.role.value == UserRole.MANUFACTURER.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not a manufacture to access this route.")
+
+        # check if manufacturer with this id exists
+        manufacturer = self.manufacturer_repository.get_manufacturer_by_manufacturer_id(data.manufacturer_id)
+        if not manufacturer:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Manufacturer with this id does not exists.")
 
         # check if batch already exists
         batch_exists = self.batch_repository.get_batch_by_batch_number(data.batch_number)
@@ -39,7 +45,7 @@ class BatchService:
             batch_number=data.batch_number,
             manufacturer_id=data.manufacturer_id,
             manufacturing_date=data.manufacturing_date,
-            status=data.status.active,
+            status=data.status.value,
             expiry_date=data.expiry_date,
 
             created_at=datetime.now(),
@@ -54,7 +60,7 @@ class BatchService:
             batch_number=batch_to_create.batch_number,
             manufacturer_id=batch_to_create.manufacturer_id,
             manufacturing_date=batch_to_create.manufacturing_date,
-            status=batch_to_create.status,
+            status=batch_to_create.status.value,
             expiry_date=batch_to_create.expiry_date,
             created_at=batch_to_create.created_at,
             updated_at=batch_to_create.updated_at
@@ -139,6 +145,8 @@ class BatchService:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail="User is not active therefore can not be a manufacturer.")
 
+        print(f"Current user id:{current_user.id}")
+
         # check if user is a manufacturer
         if not current_user.role.value == UserRole.MANUFACTURER.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
@@ -151,10 +159,14 @@ class BatchService:
 
         # get manufacturer by this user_id
         manufacture = self.manufacturer_repository.get_manufacturer_by_user_id(current_user.id)
-        print(manufacture)
         if not manufacture:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not a manufacture to access this route 2")
+
+        print(f"Manufacturer Id: {manufacture.id}")
+        print(f"Batch.Manufacturer ID: {batch.manufacturer_id}")
+        print(f"Batch number:{batch.batch_number}")
+
 
         # check if batch was created by the user
         if manufacture.id != batch.manufacturer_id:
@@ -172,6 +184,7 @@ class BatchService:
             updated_at=batch.updated_at
         )
 
+    # Working
     async def get_all_batches(self, current_user: User) -> List[BatchResponse]:
 
         # check if user is verified
