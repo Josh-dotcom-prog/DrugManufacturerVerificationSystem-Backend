@@ -1,27 +1,35 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, func, ForeignKey, Enum
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, func, ForeignKey, Enum as SqlEnum
 from app.database.database import Base
 from sqlalchemy.orm import mapped_column, relationship
 import enum
 
-class UserRole(enum.Enum):
-    MANUFACTURER = "manufacturer"
-    ADMIN = "admin"
+
+class UserRoleEnum(str, enum.Enum):
+    admin = "admin"
+    manufacturer = "manufacturer"
+
 
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150))
-    email = Column(String(255), unique=True, index=True)
-    role = Column(Enum(UserRole), nullable=False, default=UserRole.MANUFACTURER)  # Fixed here
-    mobile = Column(Integer, unique=True)
-    password = Column(String(100))
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    license_number = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    phone_number = Column(String, unique=True, nullable=False)
+    street_address = Column(String, nullable=False)
+    password = Column(String, nullable=False)  # Store hashed password!
+    role = Column(SqlEnum(UserRoleEnum, name="user_role_enum"), nullable=False)
+    certificate = Column(String, nullable=False)  # Could be file path or Base64
+    approved = Column(Boolean, default=False, nullable=False)
+
     is_active = Column(Boolean, default=False)
     verified_at = Column(DateTime, nullable=True, default=None, onupdate=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), server_onupdate=func.now())
 
     tokens = relationship("UserToken", back_populates="user", cascade="all, delete")
     password_reset_tokens = relationship("PasswordResetToken", back_populates="user", cascade="all, delete")
+    drugs = relationship("Drug", back_populates="manufacturer", cascade="all, delete")
 
     def get_context_string(self, context: str):
         return f"{context}{self.password[-6:]}{self.updated_at.strftime('%m%d%Y%H%M%S')}".strip()

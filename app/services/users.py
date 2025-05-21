@@ -26,10 +26,11 @@ class UserService:
         self.password_reset_service = PasswordResetService(password_reset_repository, user_repository)
 
     async def create_user_account(self, data: UserCreateSchema, background_tasks: BackgroundTasks):
-        user_exist = self.user_repository.get_user_by_email(data.email)
+        user_email = str(data.email)
+        user_exist = self.user_repository.get_user_by_email(user_email)
         if user_exist:
             raise HTTPException(status_code=400, detail="Email already exists.")
-        user_number_exists = self.user_repository.get_user_by_mobile(data.mobile)
+        user_number_exists = self.user_repository.get_user_by_mobile(data.phone_number)
         if user_number_exists:
             raise HTTPException(status_code=400, detail="Mobile number already exists.")
         if not security.is_password_strong_enough(data.password):
@@ -37,15 +38,19 @@ class UserService:
 
         user = User(
             name=data.name,
+            license_number=data.license_number,
             email=data.email,
-            role=data.role.value,
-            mobile=data.mobile,
+            role=UserRole.manufacturer.value,
+            phone_number=data.phone_number,
+            street_address=data.street_address,
             password=security.hash_password(data.password),
+            certificate=data.certificate,
+
             is_active=False,
             updated_at=datetime.now()
         )
         self.user_repository.create_user(user)
-        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.mobile)
+        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.phone_number)
         await UserAuthEmailService.send_account_verification_email(user, background_task=background_tasks)
         return user_response
 
@@ -134,7 +139,7 @@ class UserService:
             id=user.id,
             name=user.name,
             email=user.email,
-            mobile=user.mobile,
+            mobile=user.phone_number,
             role=user.role.value,
             is_active=user.is_active,
             verified_at=user.verified_at,
@@ -145,7 +150,7 @@ class UserService:
         raise HTTPException(status_code=400, detail="User does not exist.")
 
     async def fetch_all_users(self, current_user: User):
-        if not current_user.role == UserRole.ADMIN.value:
+        if not current_user.role == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
         users = self.user_repository.get_all_users()
         return [

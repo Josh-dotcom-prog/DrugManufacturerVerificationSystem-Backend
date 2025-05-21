@@ -15,7 +15,7 @@ class UserRepository:
 
     #Funtion that gets a user by mobile number
     def get_user_by_mobile(self, mobile: int) -> User:
-        user = self.session.query(User).where(User.mobile == mobile).first()
+        user = self.session.query(User).where(User.phone_number == mobile).first()
         return user
 
     def get_all_users(self):
