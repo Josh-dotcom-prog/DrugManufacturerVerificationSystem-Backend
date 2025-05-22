@@ -158,10 +158,25 @@ class UserService:
                 id=user.id,
                 name=user.name,
                 email=user.email,
-                mobile=user.mobile,
+                mobile=user.phone_number,
                 role=user.role.value,
                 is_active=user.is_active,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
             ) for user in users
         ]
+
+    async def get_user_detail(self, manufacturer_id: int,current_user: User):
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+        user = self.user_repository.get_user_by_id(manufacturer_id)
+        return AllUserResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                mobile=user.phone_number,
+                role=user.role.value,
+                is_active=user.is_active,
+                verified_at=user.verified_at,
+                updated_at=user.updated_at,
+        )
