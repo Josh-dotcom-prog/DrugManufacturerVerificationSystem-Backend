@@ -65,5 +65,8 @@ class ManufacturesInTheSystem(BaseModel):
     approved: List[ApprovedUsers]
     pending: List[PendingApprovals]
 
+class ManufacturesForApproval(BaseModel):
+    pending: List[PendingApprovals]
+
 
 

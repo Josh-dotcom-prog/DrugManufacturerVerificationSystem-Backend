@@ -107,3 +107,8 @@ async def admin_dashboard(current_user = Depends(security.get_current_user),
 async def manufactures_in_the_system(current_user = Depends(security.get_current_user),
                                      user_service: UserService = Depends(get_user_service)):
     return await user_service.get_manufacturers_in_the_system(current_user)
+
+@admin_router.get("/approvals", status_code=status.HTTP_200_OK, response_model=ManufacturesForApproval)
+async def manufacturers_pending_approval(current_user = Depends(security.get_current_user),
+                                         user_service: UserService = Depends(get_user_service)):
+    return await user_service.get_manufactures_for_approval(current_user)

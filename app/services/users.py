@@ -315,3 +315,21 @@ class UserService:
             approved=approved_response,
             pending=pending_response
         )
+
+    async def get_manufactures_for_approval(self, current_user: User) -> ManufacturesForApproval:
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+        # Get pending users
+        pending_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.pending)
+
+        pending_response = [PendingApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            approved=user.approval_status
+        ) for user in pending_users]
+
+        return ManufacturesForApproval(
+            pending=pending_response
+        )
