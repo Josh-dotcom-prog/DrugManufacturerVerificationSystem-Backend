@@ -142,7 +142,7 @@ class UserService:
             mobile=user.phone_number,
             role=user.role.value,
             is_active=user.is_active,
-            approved=user.approved,
+            approved=user.approval_status,
             address=user.street_address,
             verified_at=user.verified_at,
             updated_at=user.updated_at,

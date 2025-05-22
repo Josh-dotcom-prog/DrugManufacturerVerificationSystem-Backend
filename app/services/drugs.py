@@ -269,8 +269,8 @@ class DrugService:
         # active drugs
         active_drugs = self.drug_repository.get_active_drugs_by_manufacturer(current_user.id)
 
-        if not expired_drugs and active_drugs:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You don't have any drugs in the system")
+        # if not expired_drugs or active_drugs:
+        #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You don't have any drugs in the system")
 
         # build expired drugs response
         expired_drugs_response = [ExpiredDrugs(
