@@ -33,6 +33,11 @@ class NewDrugsListResponse(BaseModel):
         from_attributes = True
 
 
+######################################################################################################
+
+# THIS WAS A QUICK FIX, IT'S UGLY BUT BARE WITH IT. I CAN SEE YOU SCREAMING DRY!!!!!
+
+
 class DrugStatus(str, enum.Enum):
     active = "active"
     expired = "expired"
@@ -51,6 +56,22 @@ class DrugDashboard(BaseModel):
     active_count: int
     expired_count: int
     total: int
+
+class DrugResponseWithStatus(BaseModel):
+    id: int
+    name: str
+    category: Category
+    dosage_form: DosageForm
+    manufacturer: str
+    batch_number: str
+    country_of_origin: str
+    description: Optional[str] = None
+    status: DrugStatus
+    manufacturing_date: datetime
+    expiry_date: datetime
+    created_at: datetime
+    updated_at: datetime
+
 
 
 

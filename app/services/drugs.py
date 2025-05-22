@@ -196,6 +196,37 @@ class DrugService:
             updated_at=drug.updated_at,
         )for drug in drugs]
 
+    async def get_drug_detail(self, drug_id: int, current_user:User) -> DrugResponse:
+        # check if user is verified
+        if not current_user.is_active:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+        # check user role
+        if not current_user.role.value == UserRoleEnum.manufacturer.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="User is not a manufacture to access this route.")
+
+        # Get all drug ids created by this manufacturer
+        drug = self.drug_repository.get_drug_by_drug_id(drug_id)
+        if not drug:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Drug with this id does not exists.")
+        return DrugResponse(
+            id=drug.id,
+            name=drug.name,
+            category=drug.category,
+            dosage_form=drug.dosage_form,
+            batch_number=drug.batch_number,
+            country_of_origin=drug.country_of_origin,
+            manufacturer=drug.manufacturer.name,
+            manufacturing_date=drug.manufacturing_date,
+            expiry_date=drug.expiry_date,
+            description=drug.description,
+            created_at=drug.created_at,
+            updated_at=drug.updated_at,
+        )
+
+
     async def get_drug_dashboard(self, current_user: User) -> DrugDashboard:
         # check if user is verified
         if not current_user.is_active:

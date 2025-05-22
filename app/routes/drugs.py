@@ -44,7 +44,7 @@ async def delete_drug(drug_id: int, current_user = Depends(security.get_current_
                       drug_service: DrugService = Depends(get_drug_service)):
     return await drug_service.delete_drug(drug_id, current_user)
 
-@drug_router.get("/drug", status_code=status.HTTP_200_OK, response_model=List[DrugResponse])
+@drug_router.get("/drugs", status_code=status.HTTP_200_OK, response_model=List[DrugResponse])
 async def get_all_my_drugs(current_user = Depends(security.get_current_user),
                            drug_service: DrugService = Depends(get_drug_service)):
     return await drug_service.get_all_my_drugs(current_user)
@@ -53,3 +53,8 @@ async def get_all_my_drugs(current_user = Depends(security.get_current_user),
 async def manufacturer_dashboard(current_user = Depends(security.get_current_user),
                                  drug_service: DrugService = Depends(get_drug_service)):
     return await drug_service.get_drug_dashboard(current_user)
+
+@drug_router.get("/drug", status_code=status.HTTP_200_OK, response_model=DrugResponse)
+async def get_drug_detail(drug_id: int, current_user = Depends(security.get_current_user),
+                          drug_service: DrugService = Depends(get_drug_service)):
+    return await drug_service.get_drug_detail(drug_id, current_user)
