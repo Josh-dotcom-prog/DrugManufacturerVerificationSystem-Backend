@@ -98,3 +98,7 @@ async def reject_manufacturer(manufacturer_id: int, user_service: UserService = 
                               current_user = Depends(security.get_current_user)):
     return await user_service.reject_manufacturer(manufacturer_id, current_user)
 
+@admin_router.get("/dashboard", status_code=status.HTTP_200_OK, response_model=AdminDashboard)
+async def admin_dashboard(current_user = Depends(security.get_current_user),
+                          user_service: UserService = Depends(get_user_service)):
+    return await user_service.get_admin_dashboard(current_user)

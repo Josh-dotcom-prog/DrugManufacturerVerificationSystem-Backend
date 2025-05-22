@@ -1,14 +1,17 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
 from app.schemas.users import ApprovalStatus
 
+
 class UserResponse(BaseModel):
     id: int
     name: str
     email: str
-    mobile: int
+    mobile: str  # changed from int to str
+
+    model_config = ConfigDict(from_attributes=True)
 
 class UserLoginResponse(BaseModel):
     access_token: str
@@ -16,7 +19,10 @@ class UserLoginResponse(BaseModel):
     expires_in: int
     token_type: str = "Bearer"
 
+
 class AllUserResponse(UserResponse):
+    model_config = ConfigDict(from_attributes=True)
+
     role: str
     is_active: bool
     approved: ApprovalStatus
@@ -24,16 +30,34 @@ class AllUserResponse(UserResponse):
     updated_at: datetime
 
 
+
 class ApprovedUsers(UserResponse):
+    model_config = ConfigDict(from_attributes=True)
+
     approved: ApprovalStatus
+
+
 
 class PendingApprovals(UserResponse):
+    model_config = ConfigDict(from_attributes=True)
+
     approved: ApprovalStatus
 
-class AdminDashboard(UserResponse):
+
+class RejectedApprovals(UserResponse):
+    model_config = ConfigDict(from_attributes=True)
+
+    approved: ApprovalStatus
+
+
+
+class AdminDashboard(BaseModel):
     approved: List[ApprovedUsers]
     pending: List[PendingApprovals]
+    rejected: List[RejectedApprovals]
     approved_count: int
     pending_count: int
+    rejected_count: int
     total: int
+
 

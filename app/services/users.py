@@ -8,7 +8,7 @@ from app.core.security import Security
 from app.models.users import User, UserToken
 from app.core.config import get_settings
 from app.repository.users import UserRepository
-from app.responses.users import UserResponse, AllUserResponse
+from app.responses.users import *
 from app.schemas.users import *
 from app.services.email_service import UserAuthEmailService
 from app.services.password_reset import PasswordResetService
@@ -203,10 +203,9 @@ class UserService:
         if user_to_approve.role.value == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="An admin can't approve or reject himself.")
 
-        print(user_to_approve.approval_status)  # should be 'pending'
         user_to_approve.approval_status = ApprovalStatus.approved.value
+
         self.user_repository.update_user(user_to_approve)
-        print("Updated to:", user_to_approve.approval_status)
 
         # TODO: Send email to user to acknowledge their approval
 
@@ -230,16 +229,56 @@ class UserService:
         if user_to_approve.role.value == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="An admin can't approve or reject himself.")
 
-        print(user_to_approve.approval_status)  # should be 'pending'
         user_to_approve.approval_status = ApprovalStatus.rejected.value
+
         self.user_repository.update_user(user_to_approve)
-        print("Updated to:", user_to_approve.approval_status)
+
         # TODO: Send email to user to acknowledge their approval
 
         return JSONResponse({"message": "Manufacturer rejected successfully."})
 
     async def get_admin_dashboard(self, current_user: User):
+
         if not current_user.role == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
 
-        pass
+        # Get approved users
+        approved_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.approved)
+
+        # Get pending users
+        pending_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.pending)
+
+        # Get rejected users
+        rejected_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.rejected)
+
+        approved_response = [ApprovedUsers(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            approved=user.approval_status
+        ) for user in approved_users]
+        pending_response = [PendingApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            approved=user.approval_status
+        ) for user in pending_users]
+        rejected_response = [RejectedApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            approved=user.approval_status
+        ) for user in rejected_users]
+
+        return AdminDashboard(
+            approved=approved_response,
+            pending=pending_response,
+            rejected=rejected_response,
+            approved_count=len(approved_users),
+            pending_count=len(pending_users),
+            rejected_count=len(rejected_users),
+            total=len(approved_users) + len(pending_users) + len(rejected_users)
+        )

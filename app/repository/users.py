@@ -1,8 +1,9 @@
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
-from app.models.users import User, UserToken
+from app.models.users import User, UserToken, ApprovalStatus
 from sqlalchemy.exc import IntegrityError
+
 
 
 class UserRepository:
@@ -74,8 +75,5 @@ class UserRepository:
     def get_all_users(self):
         return self.session.query(User).all()
 
-    def get_approved_manufactures(self):
-        return self.session.query(User).where(User.approved == True).all()
-
-    def get_pending_approvals(self):
-        return self.session.query(User).where(User.approved == False).all()
+    def get_users_by_approval_status(self, status: ApprovalStatus) -> list[User]:
+        return self.session.query(User).filter(User.approval_status == status.value).all()
