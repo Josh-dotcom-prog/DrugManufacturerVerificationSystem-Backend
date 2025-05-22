@@ -29,6 +29,10 @@ class DrugService:
         if not current_user.role.value == UserRoleEnum.manufacturer.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not a manufacture to access this route.")
 
+        # check if manufacture is approved
+        if not current_user.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+
         # check if drug with this name exists
         drug_exists = self.drug_repository.get_drug_by_name(data.name)
         if drug_exists:
@@ -89,6 +93,11 @@ class DrugService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not a manufacture to access this route.")
 
+        # check if manufacture is approved
+        if not current_user.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+
+
         # check if drug with this name exists
         drug_to_update = self.drug_repository.get_drug_by_name(data.name)
         if not drug_to_update:
@@ -142,6 +151,11 @@ class DrugService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not a manufacture to access this route.")
 
+        # check if manufacture is approved
+        if not current_user.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+
+
         # check if drug with this name exists
         drug_to_delete = self.drug_repository.get_drug_by_drug_id(drug_id)
         if not drug_to_delete:
@@ -176,6 +190,11 @@ class DrugService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not a manufacture to access this route.")
 
+        # check if manufacture is approved
+        if not current_user.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+
+
         # Get all drug ids created by this manufacturer
         drugs = self.drug_repository.get_all_drugs_by_one_manufacturer(current_user.id)
         if not drugs:
@@ -205,6 +224,11 @@ class DrugService:
         if not current_user.role.value == UserRoleEnum.manufacturer.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not a manufacture to access this route.")
+
+        # check if manufacture is approved
+        if not current_user.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+
 
         # Get all drug ids created by this manufacturer
         drug = self.drug_repository.get_drug_by_drug_id(drug_id)
@@ -238,16 +262,24 @@ class DrugService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                 detail="User is not a manufacture to access this route.")
 
+        # check if manufacture is approved
+        if not current_user.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+
+
         expired_drugs = self.drug_repository.get_expired_drugs_by_manufacturer(current_user.id)
+
+        # active drugs
+        active_drugs = self.drug_repository.get_active_drugs_by_manufacturer(current_user.id)
+
+        if not expired_drugs and active_drugs:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You don't have any drugs in the system")
 
         # build expired drugs response
         expired_drugs_response = [ExpiredDrugs(
             drug_name=expired_drug.name,
             status=DrugStatus.expired
         ) for expired_drug in expired_drugs]
-
-        # active drugs
-        active_drugs = self.drug_repository.get_active_drugs_by_manufacturer(current_user.id)
 
         # build active drugs response
         active_drugs_response = [ActiveDrugs(
