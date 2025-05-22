@@ -232,6 +232,7 @@ class DrugService:
         if not current_user.is_active:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail="User is not active therefore can not be a manufacturer.")
+
         # check user role
         if not current_user.role.value == UserRoleEnum.manufacturer.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,

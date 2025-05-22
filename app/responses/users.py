@@ -17,5 +17,6 @@ class UserLoginResponse(BaseModel):
 class AllUserResponse(UserResponse):
     role: str
     is_active: bool
+    approved: bool
     verified_at: Optional[datetime]
     updated_at: datetime
