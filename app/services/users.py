@@ -8,7 +8,7 @@ from app.core.security import Security
 from app.models.users import User, UserToken
 from app.core.config import get_settings
 from app.repository.users import UserRepository
-from app.responses.users import UserResponse, AllUserResponse
+from app.responses.users import *
 from app.schemas.users import *
 from app.services.email_service import UserAuthEmailService
 from app.services.password_reset import PasswordResetService
@@ -26,10 +26,11 @@ class UserService:
         self.password_reset_service = PasswordResetService(password_reset_repository, user_repository)
 
     async def create_user_account(self, data: UserCreateSchema, background_tasks: BackgroundTasks):
-        user_exist = self.user_repository.get_user_by_email(data.email)
+        user_email = str(data.email)
+        user_exist = self.user_repository.get_user_by_email(user_email)
         if user_exist:
             raise HTTPException(status_code=400, detail="Email already exists.")
-        user_number_exists = self.user_repository.get_user_by_mobile(data.mobile)
+        user_number_exists = self.user_repository.get_user_by_mobile(data.phone_number)
         if user_number_exists:
             raise HTTPException(status_code=400, detail="Mobile number already exists.")
         if not security.is_password_strong_enough(data.password):
@@ -37,15 +38,19 @@ class UserService:
 
         user = User(
             name=data.name,
+            license_number=data.license_number,
             email=data.email,
-            role=data.role.value,
-            mobile=data.mobile,
+            role=UserRole.manufacturer.value,
+            phone_number=data.phone_number,
+            street_address=data.street_address,
             password=security.hash_password(data.password),
+            certificate=data.certificate,
+            approval_status=ApprovalStatus.pending,
             is_active=False,
             updated_at=datetime.now()
         )
         self.user_repository.create_user(user)
-        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.mobile)
+        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.phone_number, address=user.street_address)
         await UserAuthEmailService.send_account_verification_email(user, background_task=background_tasks)
         return user_response
 
@@ -134,9 +139,11 @@ class UserService:
             id=user.id,
             name=user.name,
             email=user.email,
-            mobile=user.mobile,
+            mobile=user.phone_number,
             role=user.role.value,
             is_active=user.is_active,
+            approved=user.approval_status,
+            address=user.street_address,
             verified_at=user.verified_at,
             updated_at=user.updated_at,
         )
@@ -145,7 +152,7 @@ class UserService:
         raise HTTPException(status_code=400, detail="User does not exist.")
 
     async def fetch_all_users(self, current_user: User):
-        if not current_user.role == UserRole.ADMIN.value:
+        if not current_user.role == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
         users = self.user_repository.get_all_users()
         return [
@@ -153,10 +160,185 @@ class UserService:
                 id=user.id,
                 name=user.name,
                 email=user.email,
-                mobile=user.mobile,
+                mobile=user.phone_number,
                 role=user.role.value,
                 is_active=user.is_active,
+                approved=user.approval_status,
+                address=user.street_address,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
             ) for user in users
         ]
+
+    async def get_user_detail(self, manufacturer_id: int,current_user: User):
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        user = self.user_repository.get_user_by_id(manufacturer_id)
+        return AllUserResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                mobile=user.phone_number,
+                role=user.role.value,
+                is_active=user.is_active,
+                approved=user.approval_status,
+                 address=user.street_address,
+                verified_at=user.verified_at,
+                updated_at=user.updated_at,
+        )
+
+    async def approve_manufacturer(self, manufacturer_id: int, current_user: User):
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        user_to_approve = self.user_repository.get_user_by_id(manufacturer_id)
+
+        # check if user is verified
+        if not user_to_approve.verified_at:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+        # check if user is active
+        if not user_to_approve.is_active:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
+
+        # stop admin from approving himself or rejecting
+        if user_to_approve.role.value == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="An admin can't approve or reject himself.")
+
+        user_to_approve.approval_status = ApprovalStatus.approved.value
+
+        self.user_repository.update_user(user_to_approve)
+
+        # TODO: Send email to user to acknowledge their approval
+
+        return JSONResponse({"message": "Manufacturer approved successfully."})
+
+    async def reject_manufacturer(self, manufacturer_id: int, current_user: User):
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        user_to_approve = self.user_repository.get_user_by_id(manufacturer_id)
+
+        # check if user is verified
+        if not user_to_approve.verified_at:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+        # check if user is active
+        if not user_to_approve.is_active:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
+
+        # stop admin from approving himself or rejecting
+        if user_to_approve.role.value == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="An admin can't approve or reject himself.")
+
+        user_to_approve.approval_status = ApprovalStatus.rejected.value
+
+        self.user_repository.update_user(user_to_approve)
+
+        # TODO: Send email to user to acknowledge their approval
+
+        return JSONResponse({"message": "Manufacturer rejected successfully."})
+
+    async def get_admin_dashboard(self, current_user: User) -> AdminDashboard:
+
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        # Get approved users
+        approved_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.approved)
+
+        # Get pending users
+        pending_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.pending)
+
+        # Get rejected users
+        rejected_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.rejected)
+
+        approved_response = [ApprovedUsers(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            address=user.street_address,
+            approved=user.approval_status
+        ) for user in approved_users]
+        pending_response = [PendingApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            address=user.street_address,
+            approved=user.approval_status
+        ) for user in pending_users]
+        rejected_response = [RejectedApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            address=user.street_address,
+            approved=user.approval_status
+        ) for user in rejected_users]
+
+        return AdminDashboard(
+            approved=approved_response,
+            pending=pending_response,
+            rejected=rejected_response,
+            approved_count=len(approved_users),
+            pending_count=len(pending_users),
+            rejected_count=len(rejected_users),
+            total=len(approved_users) + len(pending_users) + len(rejected_users)
+        )
+
+    async def get_manufacturers_in_the_system(self, current_user: User):
+
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        # Get approved users
+        approved_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.approved)
+
+        # Get pending users
+        pending_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.pending)
+
+
+        approved_response = [ApprovedUsers(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            address=user.street_address,
+            approved=user.approval_status
+        ) for user in approved_users]
+        pending_response = [PendingApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            address=user.street_address,
+            approved=user.approval_status
+        ) for user in pending_users]
+
+
+        return ManufacturesInTheSystem(
+            approved=approved_response,
+            pending=pending_response
+        )
+
+    async def get_manufactures_for_approval(self, current_user: User) -> ManufacturesForApproval:
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+        # Get pending users
+        pending_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.pending)
+
+        pending_response = [PendingApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            address=user.street_address,
+            approved=user.approval_status
+        ) for user in pending_users]
+
+        return ManufacturesForApproval(
+            pending=pending_response
+        )

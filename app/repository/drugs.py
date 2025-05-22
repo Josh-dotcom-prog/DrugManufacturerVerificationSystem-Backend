@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.drugs import Drug
+from datetime import datetime
 
-from app.models.batches import Batch
-from app.models.manufacturer import Manufacturer
+
 
 class DrugRepository:
     def __init__(self, session: Session):
@@ -25,6 +25,7 @@ class DrugRepository:
             self.session.merge(drugs)
             self.session.commit()
             self.session.refresh(drugs)
+            return drugs
         except IntegrityError:
             self.session.rollback()
             raise
@@ -43,9 +44,27 @@ class DrugRepository:
         return self.session.query(Drug).filter(Drug.name == drug_name).first()
 
     def get_all_drugs_by_one_manufacturer(self, manufacturer_id: int):
-        return  self.session.query(Drug).join(Batch, Drug.batch_id == Batch.id).filter(Batch.manufacturer_id == manufacturer_id).all()
+        return self.session.query(Drug).filter(Drug.manufacturer_id == manufacturer_id).all()
 
-    #lists all drugs
-    def get_all_drugs(self):
-        return self.session.query(Drug).all()
+    def get_drug_by_batch_number(self, batch_number: str) -> Drug:
+        return self.session.query(Drug).filter(Drug.batch_number == batch_number).first()
 
+    def get_expired_drugs_by_manufacturer(self,  manufacturer_id: int):
+        return (
+            self.session.query(Drug)
+            .filter(
+                Drug.manufacturer_id == manufacturer_id,
+                Drug.expiry_date < datetime.now()
+            )
+            .all()
+        )
+
+    def get_active_drugs_by_manufacturer(self, manufacturer_id: int):
+        return (
+            self.session.query(Drug)
+            .filter(
+                Drug.manufacturer_id == manufacturer_id,
+                Drug.expiry_date > datetime.now()
+            )
+            .all()
+        )

@@ -1,26 +1,14 @@
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
-from app.models.users import User, UserToken
+from app.models.users import User, UserToken, ApprovalStatus
 from sqlalchemy.exc import IntegrityError
+
 
 
 class UserRepository:
     def __init__(self, session: Session):
         self.session = session
-
-    def get_user_by_email(self, email: str) -> User:
-        stmt = select(User).where(User.email == email)
-        return self.session.execute(stmt).scalars().first()
-
-    #Funtion that gets a user by mobile number
-    def get_user_by_mobile(self, mobile: int) -> User:
-        user = self.session.query(User).where(User.mobile == mobile).first()
-        return user
-
-    def get_all_users(self):
-        return self.session.query(User).all()
-
 
     def create_user(self, user: User) -> None:
         try:
@@ -33,7 +21,7 @@ class UserRepository:
 
     def update_user(self, user: User) -> None:
         try:
-            # updated_at is now handled by the database via onupdate=func.now()
+            self.session.merge(user)
             self.session.commit()
             self.session.refresh(user)
         except IntegrityError:
@@ -75,3 +63,17 @@ class UserRepository:
             raise
 
 
+    def get_user_by_email(self, email: str) -> User:
+        stmt = select(User).where(User.email == email)
+        return self.session.execute(stmt).scalars().first()
+
+    #Funtion that gets a user by mobile number
+    def get_user_by_mobile(self, mobile: int) -> User:
+        user = self.session.query(User).where(User.phone_number == mobile).first()
+        return user
+
+    def get_all_users(self):
+        return self.session.query(User).all()
+
+    def get_users_by_approval_status(self, status: ApprovalStatus) -> list[User]:
+        return self.session.query(User).filter(User.approval_status == status.value).all()
