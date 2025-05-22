@@ -102,3 +102,8 @@ async def reject_manufacturer(manufacturer_id: int, user_service: UserService = 
 async def admin_dashboard(current_user = Depends(security.get_current_user),
                           user_service: UserService = Depends(get_user_service)):
     return await user_service.get_admin_dashboard(current_user)
+
+@admin_router.get("/manufactures-in-the-system", status_code=status.HTTP_200_OK, response_model=ManufacturesInTheSystem)
+async def manufactures_in_the_system(current_user = Depends(security.get_current_user),
+                                     user_service: UserService = Depends(get_user_service)):
+    return await user_service.get_manufacturers_in_the_system(current_user)

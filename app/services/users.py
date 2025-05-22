@@ -237,7 +237,7 @@ class UserService:
 
         return JSONResponse({"message": "Manufacturer rejected successfully."})
 
-    async def get_admin_dashboard(self, current_user: User):
+    async def get_admin_dashboard(self, current_user: User) -> AdminDashboard:
 
         if not current_user.role == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
@@ -281,4 +281,37 @@ class UserService:
             pending_count=len(pending_users),
             rejected_count=len(rejected_users),
             total=len(approved_users) + len(pending_users) + len(rejected_users)
+        )
+
+    async def get_manufacturers_in_the_system(self, current_user: User):
+
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        # Get approved users
+        approved_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.approved)
+
+        # Get pending users
+        pending_users = self.user_repository.get_users_by_approval_status(ApprovalStatus.pending)
+
+
+        approved_response = [ApprovedUsers(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            approved=user.approval_status
+        ) for user in approved_users]
+        pending_response = [PendingApprovals(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            mobile=user.phone_number,
+            approved=user.approval_status
+        ) for user in pending_users]
+
+
+        return ManufacturesInTheSystem(
+            approved=approved_response,
+            pending=pending_response
         )

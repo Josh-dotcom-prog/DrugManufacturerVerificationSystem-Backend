@@ -61,3 +61,9 @@ class AdminDashboard(BaseModel):
     total: int
 
 
+class ManufacturesInTheSystem(BaseModel):
+    approved: List[ApprovedUsers]
+    pending: List[PendingApprovals]
+
+
+
