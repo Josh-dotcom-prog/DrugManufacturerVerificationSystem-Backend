@@ -6,7 +6,7 @@ from app.repository.drugs import DrugRepository
 from app.schemas.drugs import *
 from app.responses.drugs import *
 
-from app.models.users import User, UserRoleEnum
+from app.models.users import User, UserRoleEnum, ApprovalStatus
 from app.repository.users import UserRepository
 
 from datetime import datetime
@@ -30,8 +30,8 @@ class DrugService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not a manufacture to access this route.")
 
         # check if manufacture is approved
-        if not current_user.approved:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+        if not current_user.approval_status == ApprovalStatus.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is not approved yet.")
 
         # check if drug with this name exists
         drug_exists = self.drug_repository.get_drug_by_name(data.name)
@@ -94,9 +94,8 @@ class DrugService:
                                 detail="User is not a manufacture to access this route.")
 
         # check if manufacture is approved
-        if not current_user.approved:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
-
+        if not current_user.approval_status == ApprovalStatus.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is not approved yet.")
 
         # check if drug with this name exists
         drug_to_update = self.drug_repository.get_drug_by_name(data.name)
@@ -152,8 +151,8 @@ class DrugService:
                                 detail="User is not a manufacture to access this route.")
 
         # check if manufacture is approved
-        if not current_user.approved:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+        if not current_user.approval_status == ApprovalStatus.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is not approved yet.")
 
 
         # check if drug with this name exists
@@ -191,8 +190,8 @@ class DrugService:
                                 detail="User is not a manufacture to access this route.")
 
         # check if manufacture is approved
-        if not current_user.approved:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
+        if not current_user.approval_status == ApprovalStatus.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is not approved yet.")
 
 
         # Get all drug ids created by this manufacturer
@@ -226,9 +225,8 @@ class DrugService:
                                 detail="User is not a manufacture to access this route.")
 
         # check if manufacture is approved
-        if not current_user.approved:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
-
+        if not current_user.approval_status == ApprovalStatus.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is not approved yet.")
 
         # Get all drug ids created by this manufacturer
         drug = self.drug_repository.get_drug_by_drug_id(drug_id)
@@ -263,9 +261,8 @@ class DrugService:
                                 detail="User is not a manufacture to access this route.")
 
         # check if manufacture is approved
-        if not current_user.approved:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is approved yet.")
-
+        if not current_user.approval_status == ApprovalStatus.approved:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manufacturer is not approved yet.")
 
         expired_drugs = self.drug_repository.get_expired_drugs_by_manufacturer(current_user.id)
 

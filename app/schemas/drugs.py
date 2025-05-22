@@ -43,7 +43,6 @@ class DrugCreate(BaseModel):
     name: str
     category: Category
     dosage_form: DosageForm
-    manufacturer: str
     batch_number: str
     country_of_origin: str
     manufacturing_date: datetime

@@ -50,7 +50,7 @@ class UserService:
             updated_at=datetime.now()
         )
         self.user_repository.create_user(user)
-        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.phone_number)
+        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.phone_number, address=user.street_address)
         await UserAuthEmailService.send_account_verification_email(user, background_task=background_tasks)
         return user_response
 
