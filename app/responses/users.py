@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class UserResponse(BaseModel):
@@ -20,3 +20,18 @@ class AllUserResponse(UserResponse):
     approved: bool
     verified_at: Optional[datetime]
     updated_at: datetime
+
+
+class ApprovedUsers(UserResponse):
+    approved: bool = True
+
+class PendingApprovals(UserResponse):
+    approved: bool = False
+
+class AdminDashboard(UserResponse):
+    approved: List[ApprovedUsers]
+    pending: List[PendingApprovals]
+    approved_count: int
+    pending_count: int
+    total: int
+

@@ -9,19 +9,6 @@ class UserRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def get_user_by_email(self, email: str) -> User:
-        stmt = select(User).where(User.email == email)
-        return self.session.execute(stmt).scalars().first()
-
-    #Funtion that gets a user by mobile number
-    def get_user_by_mobile(self, mobile: int) -> User:
-        user = self.session.query(User).where(User.phone_number == mobile).first()
-        return user
-
-    def get_all_users(self):
-        return self.session.query(User).all()
-
-
     def create_user(self, user: User) -> None:
         try:
             self.session.add(user)
@@ -75,3 +62,20 @@ class UserRepository:
             raise
 
 
+    def get_user_by_email(self, email: str) -> User:
+        stmt = select(User).where(User.email == email)
+        return self.session.execute(stmt).scalars().first()
+
+    #Funtion that gets a user by mobile number
+    def get_user_by_mobile(self, mobile: int) -> User:
+        user = self.session.query(User).where(User.phone_number == mobile).first()
+        return user
+
+    def get_all_users(self):
+        return self.session.query(User).all()
+
+    def get_approved_manufactures(self):
+        return self.session.query(User).where(User.approved == True).all()
+
+    def get_pending_approvals(self):
+        return self.session.query(User).where(User.approved == False).all()

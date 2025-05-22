@@ -8,6 +8,12 @@ class UserRoleEnum(str, enum.Enum):
     admin = "admin"
     manufacturer = "manufacturer"
 
+class ApprovalStatus(str, enum.Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+
 
 
 class User(Base):
@@ -21,7 +27,7 @@ class User(Base):
     password = Column(String, nullable=False)  # Store hashed password!
     role = Column(SqlEnum(UserRoleEnum, name="user_role_enum"), nullable=False)
     certificate = Column(String, nullable=False)  # Could be file path or Base64
-    approved = Column(Boolean, default=False, nullable=False)
+    approval_status = Column(SqlEnum(ApprovalStatus, name="approval_status_enum"), nullable=False)
 
     is_active = Column(Boolean, default=False)
     verified_at = Column(DateTime, nullable=True, default=None, onupdate=func.now())

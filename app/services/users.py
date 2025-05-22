@@ -205,3 +205,9 @@ class UserService:
         # TODO: Send email to user to acknowledge their approval
 
         return JSONResponse({"message": "Manufacturer approved successfully."})
+
+    async def get_admin_dashboard(self, current_user: User):
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        pass
