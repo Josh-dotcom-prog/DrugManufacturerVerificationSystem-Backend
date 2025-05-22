@@ -10,6 +10,7 @@ class UserResponse(BaseModel):
     name: str
     email: str
     mobile: str  # changed from int to str
+    address: str
 
     model_config = ConfigDict(from_attributes=True)
 

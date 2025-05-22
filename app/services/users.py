@@ -143,6 +143,7 @@ class UserService:
             role=user.role.value,
             is_active=user.is_active,
             approved=user.approved,
+            address=user.street_address,
             verified_at=user.verified_at,
             updated_at=user.updated_at,
         )
@@ -163,6 +164,7 @@ class UserService:
                 role=user.role.value,
                 is_active=user.is_active,
                 approved=user.approval_status,
+                address=user.street_address,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
             ) for user in users
@@ -181,6 +183,7 @@ class UserService:
                 role=user.role.value,
                 is_active=user.is_active,
                 approved=user.approval_status,
+                 address=user.street_address,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
         )
@@ -256,6 +259,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            address=user.street_address,
             approved=user.approval_status
         ) for user in approved_users]
         pending_response = [PendingApprovals(
@@ -263,6 +267,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            address=user.street_address,
             approved=user.approval_status
         ) for user in pending_users]
         rejected_response = [RejectedApprovals(
@@ -270,6 +275,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            address=user.street_address,
             approved=user.approval_status
         ) for user in rejected_users]
 
@@ -300,6 +306,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            address=user.street_address,
             approved=user.approval_status
         ) for user in approved_users]
         pending_response = [PendingApprovals(
@@ -307,6 +314,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            address=user.street_address,
             approved=user.approval_status
         ) for user in pending_users]
 
@@ -327,6 +335,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            address=user.street_address,
             approved=user.approval_status
         ) for user in pending_users]
 
