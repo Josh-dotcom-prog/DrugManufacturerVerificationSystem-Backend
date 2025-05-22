@@ -20,7 +20,7 @@ class UserRepository:
 
     def update_user(self, user: User) -> None:
         try:
-            # updated_at is now handled by the database via onupdate=func.now()
+            self.session.merge(user)
             self.session.commit()
             self.session.refresh(user)
         except IntegrityError:

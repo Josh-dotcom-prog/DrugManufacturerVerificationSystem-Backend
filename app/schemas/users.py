@@ -17,6 +17,23 @@ class UserRole(str, enum.Enum):
             f"Invalid role: {value!r}. Allowed values: {[role.value for role in cls]}"
         )
 
+class ApprovalStatus(str, enum.Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+
+    @classmethod
+    def _missing_(cls, value):
+        if isinstance(value, str):
+            for member in cls:
+                if member.value.lower() == value.lower():
+                    return member
+        raise ValueError(
+            f"Invalid role: {value!r}. Allowed values: {[role.value for role in cls]}"
+        )
+
+
 # Regex explanation:
 # - ^07\d{8}$ → local format, e.g., 0701234567
 # - ^\+2567\d{8}$ → international format, e.g., +256701234567

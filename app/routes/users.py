@@ -83,7 +83,7 @@ async def fetch_user(user=Depends(security.get_current_user), token: str = Heade
 async def get_all_users(user_service: UserService = Depends(get_user_service), current_user = Depends(security.get_current_user)):
     return await user_service.fetch_all_users(current_user)
 
-@admin_router.get("/user", response_model=AllUserResponse)
+@admin_router.get("/user", status_code=status.HTTP_200_OK,response_model=AllUserResponse)
 async def get_user_detail(manufacturer_id: int, user_service: UserService = Depends(get_user_service),
                           current_user = Depends(security.get_current_user)):
     return await user_service.get_user_detail(manufacturer_id, current_user)
@@ -92,3 +92,9 @@ async def get_user_detail(manufacturer_id: int, user_service: UserService = Depe
 async def approve_manufacturer(manufacturer_id: int, user_service: UserService = Depends(get_user_service),
                                current_user = Depends(security.get_current_user)):
     return await user_service.approve_manufacturer(manufacturer_id, current_user)
+
+@admin_router.patch("/reject", status_code=status.HTTP_200_OK)
+async def reject_manufacturer(manufacturer_id: int, user_service: UserService = Depends(get_user_service),
+                              current_user = Depends(security.get_current_user)):
+    return await user_service.reject_manufacturer(manufacturer_id, current_user)
+

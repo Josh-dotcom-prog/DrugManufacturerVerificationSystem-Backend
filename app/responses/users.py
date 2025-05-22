@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 
+from app.schemas.users import ApprovalStatus
+
 class UserResponse(BaseModel):
     id: int
     name: str
@@ -17,16 +19,16 @@ class UserLoginResponse(BaseModel):
 class AllUserResponse(UserResponse):
     role: str
     is_active: bool
-    approved: bool
+    approved: ApprovalStatus
     verified_at: Optional[datetime]
     updated_at: datetime
 
 
 class ApprovedUsers(UserResponse):
-    approved: bool = True
+    approved: ApprovalStatus
 
 class PendingApprovals(UserResponse):
-    approved: bool = False
+    approved: ApprovalStatus
 
 class AdminDashboard(UserResponse):
     approved: List[ApprovedUsers]

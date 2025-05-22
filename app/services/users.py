@@ -45,7 +45,7 @@ class UserService:
             street_address=data.street_address,
             password=security.hash_password(data.password),
             certificate=data.certificate,
-
+            approval_status=ApprovalStatus.pending,
             is_active=False,
             updated_at=datetime.now()
         )
@@ -162,7 +162,7 @@ class UserService:
                 mobile=user.phone_number,
                 role=user.role.value,
                 is_active=user.is_active,
-                approved=user.approved,
+                approved=user.approval_status,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
             ) for user in users
@@ -180,7 +180,7 @@ class UserService:
                 mobile=user.phone_number,
                 role=user.role.value,
                 is_active=user.is_active,
-                approved=user.approved,
+                approved=user.approval_status,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
         )
@@ -199,12 +199,44 @@ class UserService:
         if not user_to_approve.is_active:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
 
-        user_to_approve.approved = True
+        # stop admin from approving himself or rejecting
+        if user_to_approve.role.value == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="An admin can't approve or reject himself.")
+
+        print(user_to_approve.approval_status)  # should be 'pending'
+        user_to_approve.approval_status = ApprovalStatus.approved.value
         self.user_repository.update_user(user_to_approve)
+        print("Updated to:", user_to_approve.approval_status)
 
         # TODO: Send email to user to acknowledge their approval
 
         return JSONResponse({"message": "Manufacturer approved successfully."})
+
+    async def reject_manufacturer(self, manufacturer_id: int, current_user: User):
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+
+        user_to_approve = self.user_repository.get_user_by_id(manufacturer_id)
+
+        # check if user is verified
+        if not user_to_approve.verified_at:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+        # check if user is active
+        if not user_to_approve.is_active:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
+
+        # stop admin from approving himself or rejecting
+        if user_to_approve.role.value == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="An admin can't approve or reject himself.")
+
+        print(user_to_approve.approval_status)  # should be 'pending'
+        user_to_approve.approval_status = ApprovalStatus.rejected.value
+        self.user_repository.update_user(user_to_approve)
+        print("Updated to:", user_to_approve.approval_status)
+        # TODO: Send email to user to acknowledge their approval
+
+        return JSONResponse({"message": "Manufacturer rejected successfully."})
 
     async def get_admin_dashboard(self, current_user: User):
         if not current_user.role == UserRole.admin.value:
