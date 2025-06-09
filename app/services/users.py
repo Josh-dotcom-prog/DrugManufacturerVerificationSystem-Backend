@@ -192,20 +192,20 @@ class UserService:
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
         )
-    async def get_manufacture_certificate(self, manufacturer_id: int):
+    async def get_manufacture_certificate(self, manufacturer_id: int, current_user: User):
 
-        # if not current_user.role == UserRole.admin.value:
-        #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
-        #
-        # # check if user is verified
-        # if not current_user.verified_at:
-        #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-        #                         detail="User is not active therefore can not be a manufacturer.")
-        # # check if user is active
-        # if not current_user.is_active:
-        #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
+        if not current_user.role == UserRole.admin.value:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
 
+        # check if user is verified
+        if not current_user.verified_at:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="User is not active therefore can not be a manufacturer.")
+        # check if user is active
+        if not current_user.is_active:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
 
+        # Get manufacturer
         manufacturer = self.user_repository.get_user_by_id(manufacturer_id)
         certificate = manufacturer.certificate
         return StreamingResponse(
