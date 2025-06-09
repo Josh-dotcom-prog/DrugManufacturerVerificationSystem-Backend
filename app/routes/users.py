@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, BackgroundTasks,status, Header
+from fastapi import APIRouter, Depends, BackgroundTasks,status, Header, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -47,8 +47,20 @@ def get_user_service(session: Session = Depends(get_session)) -> UserService:
 
 
 @user_router.post("/create", status_code=status.HTTP_201_CREATED,response_model=UserResponse)
-async def create_user(data: UserCreateSchema, background_task: BackgroundTasks, user_service: UserService = Depends(get_user_service)):
-    return await user_service.create_user_account(data, background_task)
+async def create_user(background_task: BackgroundTasks, name: str = Form(), license_number: str = Form(), email: str = Form(), phone_number: str = Form(),
+                      stresst_address: str = Form(), password: str = Form(), certificate: UploadFile = File() ,
+                        user_service: UserService = Depends(get_user_service)):
+
+    data = UserCreateSchema(
+        name=name,
+        license_number=license_number,
+        email=email,
+        phone_number=phone_number,
+        street_address=stresst_address,
+        password=password,
+    )
+
+    return await user_service.create_user_account(certificate, data, background_task)
 
 @user_router.post("/verify", status_code=status.HTTP_200_OK)
 async def verify_user(data: ActivateUserSchema, background_tasks: BackgroundTasks, user_service: UserService = Depends(get_user_service)):
@@ -112,3 +124,9 @@ async def manufactures_in_the_system(current_user = Depends(security.get_current
 async def manufacturers_pending_approval(current_user = Depends(security.get_current_user),
                                          user_service: UserService = Depends(get_user_service)):
     return await user_service.get_manufactures_for_approval(current_user)
+
+
+@user_router.get("/certificate", status_code=status.HTTP_200_OK)
+async def get_manufacturers_certificate(manufacturer_id: int,
+                                         user_service: UserService = Depends(get_user_service)):
+    return await user_service.get_manufacture_certificate(manufacturer_id)
