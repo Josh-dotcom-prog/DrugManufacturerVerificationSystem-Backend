@@ -46,11 +46,10 @@ UgandanPhoneNumber = Annotated[
 class UserBase(BaseModel):
     name: str
     license_number: str
-    email: EmailStr
+    email: str
     phone_number: UgandanPhoneNumber
     street_address: str
     password: str
-    certificate: str
 
 
 class UserCreateSchema(UserBase):

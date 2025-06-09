@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, func, ForeignKey, Enum as SqlEnum
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, func, ForeignKey,LargeBinary ,Enum as SqlEnum
 from app.database.database import Base
 from sqlalchemy.orm import mapped_column, relationship
 import enum
@@ -26,7 +26,7 @@ class User(Base):
     street_address = Column(String, nullable=False)
     password = Column(String, nullable=False)  # Store hashed password!
     role = Column(SqlEnum(UserRoleEnum, name="user_role_enum"), nullable=False)
-    certificate = Column(String, nullable=False)  # Could be file path or Base64
+    certificate = Column(LargeBinary, nullable=False)  # Could be file path or Base64
     approval_status = Column(SqlEnum(ApprovalStatus, name="approval_status_enum"), nullable=False)
 
     is_active = Column(Boolean, default=False)

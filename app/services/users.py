@@ -1,6 +1,9 @@
 from datetime import datetime
+from io import BytesIO
+from fastapi.responses import StreamingResponse
+
 import logging
-from fastapi import HTTPException, BackgroundTasks, Depends, status
+from fastapi import HTTPException, BackgroundTasks, Depends, status, UploadFile
 from sqlalchemy.orm import Session, joinedload
 from starlette.responses import JSONResponse
 
@@ -25,7 +28,7 @@ class UserService:
         self.user_repository = user_repository
         self.password_reset_service = PasswordResetService(password_reset_repository, user_repository)
 
-    async def create_user_account(self, data: UserCreateSchema, background_tasks: BackgroundTasks):
+    async def create_user_account(self, certificate: UploadFile,  data: UserCreateSchema, background_tasks: BackgroundTasks):
         user_email = str(data.email)
         user_exist = self.user_repository.get_user_by_email(user_email)
         if user_exist:
@@ -36,6 +39,8 @@ class UserService:
         if not security.is_password_strong_enough(data.password):
             raise HTTPException(status_code=400, detail="Please provide a strong password.")
 
+        certificate_data = await certificate.read()
+
         user = User(
             name=data.name,
             license_number=data.license_number,
@@ -44,7 +49,7 @@ class UserService:
             phone_number=data.phone_number,
             street_address=data.street_address,
             password=security.hash_password(data.password),
-            certificate=data.certificate,
+            certificate=certificate_data,
             approval_status=ApprovalStatus.pending,
             is_active=False,
             updated_at=datetime.now()
@@ -186,6 +191,29 @@ class UserService:
                  address=user.street_address,
                 verified_at=user.verified_at,
                 updated_at=user.updated_at,
+        )
+    async def get_manufacture_certificate(self, manufacturer_id: int):
+
+        # if not current_user.role == UserRole.admin.value:
+        #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
+        #
+        # # check if user is verified
+        # if not current_user.verified_at:
+        #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        #                         detail="User is not active therefore can not be a manufacturer.")
+        # # check if user is active
+        # if not current_user.is_active:
+        #     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active.")
+
+
+        manufacturer = self.user_repository.get_user_by_id(manufacturer_id)
+        certificate = manufacturer.certificate
+        return StreamingResponse(
+            BytesIO(certificate),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename=resume_{manufacturer_id}.pdf"
+            }
         )
 
     async def approve_manufacturer(self, manufacturer_id: int, current_user: User):
