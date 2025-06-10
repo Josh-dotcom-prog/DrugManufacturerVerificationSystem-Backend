@@ -11,6 +11,7 @@ class UserResponse(BaseModel):
     email: str
     mobile: str  # changed from int to str
     address: str
+    user_role: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -24,7 +25,6 @@ class UserLoginResponse(BaseModel):
 class AllUserResponse(UserResponse):
     model_config = ConfigDict(from_attributes=True)
 
-    role: str
     is_active: bool
     approved: ApprovalStatus
     verified_at: Optional[datetime]

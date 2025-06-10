@@ -55,7 +55,7 @@ class UserService:
             updated_at=datetime.now()
         )
         self.user_repository.create_user(user)
-        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.phone_number, address=user.street_address)
+        user_response = UserResponse(id=user.id, name=user.name, email=user.email, mobile=user.phone_number, address=user.street_address, user_role=user.role)
         await UserAuthEmailService.send_account_verification_email(user, background_task=background_tasks)
         return user_response
 
@@ -145,7 +145,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
-            role=user.role.value,
+            user_role=user.role.value,
             is_active=user.is_active,
             approved=user.approval_status,
             address=user.street_address,
@@ -166,7 +166,7 @@ class UserService:
                 name=user.name,
                 email=user.email,
                 mobile=user.phone_number,
-                role=user.role.value,
+                user_role=user.role.value,
                 is_active=user.is_active,
                 approved=user.approval_status,
                 address=user.street_address,
@@ -185,7 +185,7 @@ class UserService:
                 name=user.name,
                 email=user.email,
                 mobile=user.phone_number,
-                role=user.role.value,
+                user_role=user.role.value,
                 is_active=user.is_active,
                 approved=user.approval_status,
                  address=user.street_address,
@@ -286,6 +286,7 @@ class UserService:
             id=user.id,
             name=user.name,
             email=user.email,
+            user_role=user.role,
             mobile=user.phone_number,
             address=user.street_address,
             approved=user.approval_status
@@ -294,6 +295,7 @@ class UserService:
             id=user.id,
             name=user.name,
             email=user.email,
+            user_role=user.role,
             mobile=user.phone_number,
             address=user.street_address,
             approved=user.approval_status
@@ -302,6 +304,7 @@ class UserService:
             id=user.id,
             name=user.name,
             email=user.email,
+            user_role=user.role,
             mobile=user.phone_number,
             address=user.street_address,
             approved=user.approval_status
@@ -334,6 +337,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            user_role=user.role,
             address=user.street_address,
             approved=user.approval_status
         ) for user in approved_users]
@@ -341,6 +345,7 @@ class UserService:
             id=user.id,
             name=user.name,
             email=user.email,
+            user_role=user.role,
             mobile=user.phone_number,
             address=user.street_address,
             approved=user.approval_status
@@ -363,6 +368,7 @@ class UserService:
             name=user.name,
             email=user.email,
             mobile=user.phone_number,
+            user_role=user.role,
             address=user.street_address,
             approved=user.approval_status
         ) for user in pending_users]
