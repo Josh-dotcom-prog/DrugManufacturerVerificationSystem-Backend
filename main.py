@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+
+from fastapi.middleware.cors import CORSMiddleware
 from app.routes.users import user_router, auth_router, guest_router, admin_router
 from app.routes.drugs import drug_router
 
@@ -16,6 +18,19 @@ def create_application():
     return application
 
 app = create_application()
+
+origins = [
+    "http://localhost:5173",  # or your frontend's actual origin
+    # "http://127.0.0.1:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,              # or ["*"] to allow all
+    allow_credentials=True,
+    allow_methods=["*"],                # <-- VERY IMPORTANT
+    allow_headers=["*"],                # <-- VERY IMPORTANT
+)
 
 @app.get("/")
 def index():
