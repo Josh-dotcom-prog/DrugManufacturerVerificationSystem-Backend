@@ -16,6 +16,7 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class UserLoginResponse(BaseModel):
+    user_role: str
     access_token: str
     refresh_token: str
     expires_in: int
