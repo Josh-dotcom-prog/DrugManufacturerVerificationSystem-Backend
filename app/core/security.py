@@ -90,6 +90,7 @@ class Security:
         refresh_token = self.generate_token(rt_payload, rt_expires)
 
         return {
+            "user_role": user.role,
             "access_token": access_token,
             "refresh_token": refresh_token,
             "expires_in": at_expires.seconds
