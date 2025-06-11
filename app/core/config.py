@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     APP_NAME: str = Field(..., env="APP_NAME")
     DEBUG: bool = Field(False, env="DEBUG")
     FRONTEND_HOST: str = Field(..., env="FRONTEND_HOST")
+    FRONTED_HOST_LOGIN: str = Field(...,env="FRONTED_HOST_LOGIN")
 
     # JWT Secret key
     JWT_SECRET: str = Field(..., env="JWT_SECRET")
@@ -98,4 +99,4 @@ def get_settings() -> Settings:
 
 if __name__ == "__main__":
     settings = get_settings()
-    #print("\nFinal DATABASE_URI:", settings.DATABASE_URI)
+    # print("\nFinal DATABASE_URI:", settings.DATABASE_URI)
