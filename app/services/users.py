@@ -71,6 +71,9 @@ class UserService:
             token_valid = False
         if not token_valid:
             raise HTTPException(status_code=400, detail="This link is either expired or not valid.")
+
+        if user.is_active:
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="User already activated.")
         user.is_active = True
         user.verified_at = datetime.now()
         user.updated_at = datetime.now()
