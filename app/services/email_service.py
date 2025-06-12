@@ -84,3 +84,42 @@ class UserAuthEmailService:
             context=data,
             bg_task=background_tasks
         )
+
+    @staticmethod
+    async def send_manufacture_approval_email(user: User, background_tasks: BackgroundTasks):
+        data = {
+            "app_name": settings.APP_NAME,
+            "name": user.name,
+            "login_url": f"{settings.FRONTED_HOST_LOGIN}"
+        }
+
+        subject = f"Welcome - {settings.APP_NAME}"
+
+        await send_email(
+            recipients=[user.email],
+            subject=subject,
+            template_name="users/approval.html",
+            context=data,
+            bg_task=background_tasks
+
+        )
+
+    @staticmethod
+    async def send_manufacture_rejection_email(user: User, background_tasks: BackgroundTasks):
+        data = {
+            "app_name": settings.APP_NAME,
+            "name": user.name,
+            "login_url": f"{settings.FRONTED_HOST_LOGIN}"
+        }
+
+        subject = f"Welcome - {settings.APP_NAME}"
+
+        await send_email(
+            recipients=[user.email],
+            subject=subject,
+            template_name="users/rejection.html",
+            context=data,
+            bg_task=background_tasks
+
+        )
+
