@@ -24,6 +24,12 @@ drug_router = APIRouter(
     dependencies=[Depends(security.oauth2_scheme), Depends(security.get_current_user)]
 )
 
+verify_drug_router = APIRouter(
+    prefix="/drug",
+    tags=["Verify"],
+    responses={404: {"description": "Not found"}},
+)
+
 def get_drug_service(session: Session = Depends(get_session)) -> DrugService:
     drug_repository = DrugRepository(session)
     user_repository = UserRepository(session)
@@ -58,3 +64,8 @@ async def manufacturer_dashboard(current_user = Depends(security.get_current_use
 async def get_drug_detail(drug_id: int, current_user = Depends(security.get_current_user),
                           drug_service: DrugService = Depends(get_drug_service)):
     return await drug_service.get_drug_detail(drug_id, current_user)
+
+
+@verify_drug_router.get("/verify", status_code=status.HTTP_200_OK, response_model=DrugResponse)
+async def verify_drug(drug_name: str, drug_service: DrugService = Depends(get_drug_service)):
+    return await drug_service.verify_drug_detail(drug_name)
