@@ -219,7 +219,7 @@ class UserService:
             }
         )
 
-    async def approve_manufacturer(self, manufacturer_id: int, current_user: User):
+    async def approve_manufacturer(self, manufacturer_id: int, current_user: User, background_tasks: BackgroundTasks):
         if not current_user.role == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
 
@@ -242,10 +242,11 @@ class UserService:
         self.user_repository.update_user(user_to_approve)
 
         # TODO: Send email to user to acknowledge their approval
+        await UserAuthEmailService.send_manufacture_approval_email(user_to_approve, background_tasks)
 
         return JSONResponse({"message": "Manufacturer approved successfully."})
 
-    async def reject_manufacturer(self, manufacturer_id: int, current_user: User):
+    async def reject_manufacturer(self, manufacturer_id: int, current_user: User, background_tasks: BackgroundTasks):
         if not current_user.role == UserRole.admin.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not an admin to access this route")
 
@@ -268,6 +269,7 @@ class UserService:
         self.user_repository.update_user(user_to_approve)
 
         # TODO: Send email to user to acknowledge their approval
+        await UserAuthEmailService.send_manufacture_rejection_email(user_to_approve, background_tasks)
 
         return JSONResponse({"message": "Manufacturer rejected successfully."})
 
