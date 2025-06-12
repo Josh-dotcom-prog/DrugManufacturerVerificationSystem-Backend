@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.users import user_router, auth_router, guest_router, admin_router
-from app.routes.drugs import drug_router
+from app.routes.drugs import drug_router, verify_drug_router
 
 def create_application():
     application = FastAPI()
@@ -11,6 +11,7 @@ def create_application():
     application.include_router(guest_router)
     application.include_router(auth_router)
     application.include_router(admin_router)
+    application.include_router(verify_drug_router)
 
     # Drugs
     application.include_router(drug_router)

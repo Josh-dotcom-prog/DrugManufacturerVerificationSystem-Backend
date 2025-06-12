@@ -296,3 +296,25 @@ class DrugService:
             expired_count=expired_count,
             total=total
         )
+
+    async def verify_drug_detail(self, drug_name: str) -> DrugResponse:
+
+        # Get all drug ids created by this manufacturer
+        drug = self.drug_repository.get_drug_by_name(drug_name)
+        if not drug:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Drug with this id does not exists.")
+        return DrugResponse(
+            id=drug.id,
+            name=drug.name,
+            category=drug.category,
+            dosage_form=drug.dosage_form,
+            batch_number=drug.batch_number,
+            country_of_origin=drug.country_of_origin,
+            manufacturer=drug.manufacturer.name,
+            manufacturing_date=drug.manufacturing_date,
+            expiry_date=drug.expiry_date,
+            description=drug.description,
+            created_at=drug.created_at,
+            updated_at=drug.updated_at,
+        )
